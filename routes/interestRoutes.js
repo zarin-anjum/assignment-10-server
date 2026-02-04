@@ -5,9 +5,22 @@ const router = express.Router();
 
 //Send interest
 router.post("/add", async (req, res) => {
-  console.log("REQUEST BODY:", req.body); // 👈 MUST HAVE
+  console.log("REQUEST BODY:", req.body); 
 
   try {
+    const { cropId, requester } = req.body;
+
+    const existingInterest = await Interest.findOne({
+      cropId,
+      "requester.email": requester.email,
+    });
+
+    if (existingInterest) {
+      return res.status(400).json({
+        message: "You have already sent an interest for this crop",
+      });
+    }
+
     const interest = new Interest(req.body);
     await interest.save();
 
@@ -16,11 +29,11 @@ router.post("/add", async (req, res) => {
       interest,
     });
   } catch (error) {
-    console.error("INTEREST ERROR:", error); // 👈 MUST HAVE
+    console.error("INTEREST ERROR:", error); 
 
     res.status(500).json({
       message: "Failed to send interest",
-      error: error.message, // 👈 SHOW REAL ERROR
+      error: error.message, 
     });
   }
 });
@@ -28,12 +41,29 @@ router.post("/add", async (req, res) => {
 //Get interests by logged-in user
 router.get("/my-interests/:email", async (req, res) => {
   try {
+    const email = req.params.email;
+
     const interests = await Interest.find({
-      interestedUserEmail: req.params.email,
+      "requester.email": email,
     });
+
     res.json(interests);
   } catch (error) {
     res.status(500).json({ message: "Failed to fetch interests" });
+  }
+});
+
+// Get interests for a specific crop (owner view)
+router.get("/crop/:cropId", async (req, res) => {
+  try {
+    const { cropId } = req.params;
+
+    const interests = await Interest.find({ cropId });
+
+    res.status(200).json(interests);
+  } catch (error) {
+    console.error("FETCH CROP INTERESTS ERROR:", error);
+    res.status(500).json({ message: "Failed to fetch crop interests" });
   }
 });
 

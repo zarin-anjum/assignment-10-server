@@ -3,8 +3,7 @@ import mongoose from "mongoose"
 const interestSchema = new mongoose.Schema(
   {
     cropId: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "Crop",
+      type: String,
       required: true,
     },
 

@@ -1,21 +1,29 @@
 import mongoose from "mongoose";
 
-const cropSchema = new mongoose.Schema({
-  name: { type: String, required: true },
-  type: { type: String, required: true },
-  pricePerUnit: { type: Number, required: true },
-  unit: { type: String, required: true },
-  quantity: { type: Number, required: true },
-  description: { type: String, required: true },
-  location: { type: String, required: true },
-  image: { type: String, required: true },
+const cropSchema = new mongoose.Schema(
+  {
+    name: { type: String, required: true },
+    type: { type: String, required: true },
+    pricePerUnit: { type: Number, required: true },
+    unit: { type: String, required: true },
+    quantity: { type: Number, required: true },
+    description: { type: String, required: true },
+    location: { type: String, required: true },
+    image: { type: String, required: true },
 
-  owner: {
-    ownerName: String,
-    ownerEmail: String,
-    ownerPhoto: String
-  }
-}, { timestamps: true });
+    status: {
+      type: String,
+      enum: ["available", "sold", "hidden"],
+      default: "available",
+    },
 
-const Crop = mongoose.model("Crop", cropSchema);
-export default Crop;
+    owner: {
+      ownerName: { type: String, required: true },
+      ownerEmail: { type: String, required: true },
+      ownerPhoto: { type: String },
+    },
+  },
+  { timestamps: true },
+);
+
+export default mongoose.model("Crop", cropSchema);
